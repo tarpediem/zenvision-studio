@@ -33,6 +33,7 @@
 
     <nav class="tabs">
       <button class="tab active" data-tab="applets">Applets</button>
+      <button class="tab" data-tab="layout">Layout</button>
       <button class="tab" data-tab="draw">Draw</button>
       <button class="tab" data-tab="files">Files</button>
       <button class="tab" data-tab="playlist">Playlist</button>
@@ -42,6 +43,20 @@
       <section class="panel-view active" id="tab-applets">
         <div id="applets" class="grid"></div>
         <button id="resume" class="ghost-btn">↻ Resume auto playlist</button>
+      </section>
+
+      <section class="panel-view" id="tab-layout">
+        <p class="dim">Split the panel into zones — e.g. an animated logo beside a clock and a VU-meter.</p>
+        <div id="layouts" class="grid"></div>
+        <div class="block builder">
+          <h3 class="bh">Custom split</h3>
+          <div class="brow">
+            <select id="z-left" class="sel"></select>
+            <input id="split" type="range" min="15" max="85" value="40">
+            <select id="z-right" class="sel"></select>
+          </div>
+          <button id="apply-split" class="cta">Apply split</button>
+        </div>
       </section>
 
       <section class="panel-view" id="tab-draw">

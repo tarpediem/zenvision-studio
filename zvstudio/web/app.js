@@ -193,5 +193,39 @@ $("#play").onclick = (e) => {
 };
 $("#send").onclick = async () => { saveCur(); await api("/api/draw", "POST", { frames }); refreshStatus(); };
 
+/* ---- layout (zones) ---- */
+async function loadLayouts() {
+  const box = $("#layouts"); if (!box) return;
+  const presets = await api("/api/layouts");
+  box.innerHTML = "";
+  for (const p of presets) {
+    const t = document.createElement("div");
+    t.className = "tile";
+    const parts = p.zones.map((z) => z.applet).join(" · ");
+    t.innerHTML = `<h3>${p.name}</h3><p>${parts}</p>`;
+    t.onclick = async () => { await api("/api/layout", "POST", { zones: p.zones }); refreshStatus(); };
+    box.appendChild(t);
+  }
+}
+function fillZoneSelects() {
+  const opts = APPLETS.filter((a) => a.key !== "player").map((a) => `<option value="${a.key}">${a.name}</option>`).join("");
+  const L = $("#z-left"), R = $("#z-right");
+  if (!L || !R) return;
+  L.innerHTML = opts; R.innerHTML = opts;
+  L.value = "logo"; R.value = "vumeter";
+}
+const applySplit = $("#apply-split");
+if (applySplit) applySplit.onclick = async () => {
+  const lw = Math.round(256 * (+$("#split").value) / 100);
+  const zones = [
+    { applet: $("#z-left").value, box: [0, 0, lw, 64] },
+    { applet: $("#z-right").value, box: [lw, 0, 256 - lw, 64] },
+  ];
+  await api("/api/layout", "POST", { zones }); refreshStatus();
+};
+
 /* ---- boot ---- */
-loadCur(); drawStrip(); startPreview(); loadApplets().then(refreshStatus); setInterval(refreshStatus, 3000);
+loadCur(); drawStrip(); startPreview();
+loadApplets().then(() => { fillZoneSelects(); refreshStatus(); });
+loadLayouts();
+setInterval(refreshStatus, 3000);

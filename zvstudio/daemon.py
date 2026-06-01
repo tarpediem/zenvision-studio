@@ -99,6 +99,21 @@ class Daemon:
         ap = FramesApplet(size=self.panel.size, frames=frames)
         self.comp.pin(ap)
 
+    def set_layout(self, zones_spec: list[dict]) -> None:
+        """Pin a multi-zone layout. zones_spec: [{applet, config, box:[x,y,w,h]}]."""
+        from .core.applets.layout import LayoutApplet
+
+        zones = []
+        for z in zones_spec:
+            ap = self._make(z.get("applet"), z.get("config"))
+            box = z.get("box") or [0, 0, *self.panel.size]
+            if ap and len(box) == 4:
+                x, y, bw, bh = (int(v) for v in box)
+                ap.size = (bw, bh)
+                zones.append((ap, (x, y, bw, bh)))
+        if zones:
+            self.comp.pin(LayoutApplet(size=self.panel.size, zones=zones))
+
     def preview_png(self) -> bytes:
         img = self.comp.preview()
         buf = io.BytesIO()

@@ -14,6 +14,26 @@ from .daemon import Daemon
 
 WEB = Path(__file__).parent / "web"
 
+# Built-in multi-zone layouts for a 256x64 panel.
+LAYOUT_PRESETS = [
+    {"name": "Logo + Clock", "zones": [
+        {"applet": "logo", "box": [0, 0, 90, 64]},
+        {"applet": "clock", "box": [90, 0, 166, 64]}]},
+    {"name": "Logo + VU", "zones": [
+        {"applet": "logo", "box": [0, 0, 90, 64]},
+        {"applet": "vumeter", "config": {"bands": 16}, "box": [90, 0, 166, 64]}]},
+    {"name": "Clock + VU", "zones": [
+        {"applet": "clock", "box": [0, 0, 112, 64]},
+        {"applet": "vumeter", "config": {"bands": 18}, "box": [112, 0, 144, 64]}]},
+    {"name": "Logo · Clock · VU", "zones": [
+        {"applet": "logo", "box": [0, 0, 64, 64]},
+        {"applet": "clock", "config": {"seconds": False}, "box": [64, 0, 96, 64]},
+        {"applet": "vumeter", "config": {"bands": 12}, "box": [160, 0, 96, 64]}]},
+    {"name": "Clock / VU stack", "zones": [
+        {"applet": "clock", "config": {"seconds": False}, "box": [0, 0, 256, 30]},
+        {"applet": "vumeter", "config": {"bands": 32}, "box": [0, 30, 256, 34]}]},
+]
+
 
 def create_app(daemon: Daemon) -> FastAPI:
     app = FastAPI(title="zenvision-studio")
@@ -69,6 +89,15 @@ def create_app(daemon: Daemon) -> FastAPI:
         if frames:
             daemon.draw(frames)
         return {"ok": True, "n": len(frames)}
+
+    @app.get("/api/layouts")
+    def layouts() -> list:
+        return LAYOUT_PRESETS
+
+    @app.post("/api/layout")
+    def layout(payload: dict) -> dict:
+        daemon.set_layout(payload.get("zones", []))
+        return {"ok": True, "n": len(payload.get("zones", []))}
 
     @app.post("/api/upload")
     async def upload(file: UploadFile, play: bool = True) -> dict:
