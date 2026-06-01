@@ -61,6 +61,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px;
 .icon-btn { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line); background: var(--card);
   color: var(--fg); cursor: pointer; position: relative; }
 .icon-btn::before { content: "⏻"; font-size: 16px; }
+.icon-btn.flash::before { content: "⚡"; }
 .icon-btn.on { color: #061b20; background: var(--accent); border-color: var(--accent); box-shadow: var(--glow); }
 .ghost-btn { width: 100%; margin-top: 14px; background: transparent; border: 1px dashed var(--line); color: var(--muted);
   padding: 11px; border-radius: 10px; cursor: pointer; }

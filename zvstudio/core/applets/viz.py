@@ -175,3 +175,31 @@ class KaleidoApplet(_Viz):
         v = (v - lo) / (hi - lo + 1e-6)
         g = v * (0.50 + 0.50 * lvl) * 255.0
         return self._feedback(g)
+
+
+class LissajousApplet(_Viz):
+    meta = AppletMeta(key="lissajous", name="Lissajous", description="X/Y oscilloscope figure",
+                      config_schema={"fps": {"type": "int", "default": 30, "label": "FPS"},
+                                     "a": {"type": "int", "default": 3, "label": "X freq"},
+                                     "b": {"type": "int", "default": 2, "label": "Y freq"},
+                                     "trails": {**TRAILS, "default": 72}})
+
+    def render(self, ctx: Ctx):
+        w, h = self.size
+        img = F.canvas(w, h)
+        d = ImageDraw.Draw(img)
+        a = self._audio
+        t = ctx.t
+        lvl = a.level if a.ok else 0.5 - 0.5 * math.cos(t * 1.5)
+        fa = max(1, int(self.config.get("a", 3)))
+        fb = max(1, int(self.config.get("b", 2)))
+        ax, ay = w * 0.46 * (0.55 + 0.5 * lvl), h * 0.46 * (0.55 + 0.5 * lvl)
+        cx, cy = w / 2, h / 2
+        ph = t * 0.7
+        n = 256
+        pts = [(cx + ax * math.sin(fa * (2 * math.pi * i / n) + ph),
+                cy + ay * math.sin(fb * (2 * math.pi * i / n))) for i in range(n + 1)]
+        d.line(pts, fill=255, width=1)
+        if HAVE_NP:
+            return self._feedback(np.asarray(img, dtype=np.float32))
+        return img

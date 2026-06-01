@@ -28,6 +28,7 @@ class Compositor:
         self.fps = fps
         self.brightness = 255
         self.enabled = True
+        self.beat_flash = False
 
         self._scenes: list[Scene] = []
         self._preempt: list[Applet] = []
@@ -75,6 +76,18 @@ class Compositor:
 
     def set_enabled(self, on: bool) -> None:
         self.enabled = bool(on)
+
+    def _flash(self, img):
+        """Brighten the whole frame on each audio beat (global beat-flash mode)."""
+        try:
+            from .audio import AudioLevel
+            b = AudioLevel.get().beat
+        except Exception:
+            return img
+        if b <= 0.02:
+            return img
+        add = int(140 * min(1.0, b))
+        return img.point(lambda v: 255 if v + add > 255 else v + add)
 
     # --- lifecycle -------------------------------------------------------
     def start(self) -> None:
@@ -158,9 +171,13 @@ class Compositor:
                 ctx = Ctx(t=t0 - self._cur_start, frame=self._cur_frame, size=self.panel.size)
                 try:
                     img = cur.render(ctx)
+                    if img.mode != "L":
+                        img = img.convert("L")
+                    if self.beat_flash:
+                        img = self._flash(img)
                     self.panel.push_frame(img)
                     with self._lock:
-                        self._preview = img if img.mode == "L" else img.convert("L")
+                        self._preview = img
                 except Exception:
                     pass
                 self._cur_frame += 1

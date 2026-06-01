@@ -38,6 +38,7 @@ async function refreshStatus() {
     const s = await api("/api/status");
     $("#status").textContent = `${s.backend} · ${s.enabled ? "on" : "off"}`;
     $("#power").classList.toggle("on", s.enabled);
+    $("#flash").classList.toggle("on", s.flash);
     $("#brightness").value = s.brightness; $("#brightval").textContent = s.brightness;
     $$(".tile").forEach((t) => t.classList.toggle("active", t.dataset.key === s.current));
     renderPlaylist(s.playlist);
@@ -96,6 +97,7 @@ $("#drawer-apply").onclick = async () => {
 
 /* ---- controls ---- */
 $("#power").onclick = async () => { const s = await api("/api/status"); await api("/api/power", "POST", { on: !s.enabled }); refreshStatus(); };
+$("#flash").onclick = async () => { const s = await api("/api/status"); await api("/api/flash", "POST", { on: !s.flash }); refreshStatus(); };
 $("#brightness").oninput = (e) => { $("#brightval").textContent = e.target.value; };
 $("#brightness").onchange = (e) => api("/api/brightness", "POST", { value: +e.target.value });
 $("#resume").onclick = async () => { await api("/api/resume", "POST", {}); refreshStatus(); };

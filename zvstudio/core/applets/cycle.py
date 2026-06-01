@@ -7,7 +7,7 @@ from PIL import Image
 from .. import frame as F
 from .base import Applet, AppletMeta, Ctx
 
-DEFAULT_SET = "plasma,tunnel,kaleido,triangles,cube,starfield,scope"
+DEFAULT_SET = "plasma,tunnel,kaleido,lissajous,triangles,cube,starfield,scope"
 
 
 class CycleApplet(Applet):

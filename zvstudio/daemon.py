@@ -57,6 +57,7 @@ class Daemon:
             "size": list(self.panel.size),
             "enabled": self.comp.enabled,
             "brightness": self.comp.brightness,
+            "flash": self.comp.beat_flash,
             "current": self.comp.current_key(),
             "playlist": self.cfg.get("playlist", []),
             "preempt": self.cfg.get("preempt", []),
@@ -77,6 +78,9 @@ class Daemon:
 
     def set_enabled(self, on: bool) -> None:
         self.comp.set_enabled(on)
+
+    def set_flash(self, on: bool) -> None:
+        self.comp.beat_flash = bool(on)
 
     def pin(self, key: str | None, config: dict | None = None) -> None:
         if key is None:
