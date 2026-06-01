@@ -15,7 +15,10 @@ widgets in a few lines.
 > Protocol & low-level driver: see the sibling project
 > [zenvision-linux](https://github.com/tarpediem/zenvision-linux).
 
-![demo](docs/demo.gif)
+![The ZenVision lid OLED running zenvision-studio](docs/lid.gif)
+
+*Audio-reactive visualisers on the actual lid OLED of an ASUS Zenbook (UX5401ZAS).
+Rendered effects up close: [docs/demo.gif](docs/demo.gif).*
 
 ## Features
 
