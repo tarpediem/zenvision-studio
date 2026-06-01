@@ -21,6 +21,7 @@ a { color: var(--accent); text-decoration: none; }
 .topbar { display: flex; align-items: center; justify-content: space-between; padding: 20px 2px; }
 .brand { font-size: 19px; font-weight: 700; letter-spacing: .3px; display: flex; align-items: center; gap: 10px; }
 .brand .dim { color: var(--muted); font-weight: 600; }
+.brand .logo { width: 30px; height: 30px; border-radius: 7px; box-shadow: var(--glow); }
 .spark { width: 14px; height: 14px; border-radius: 50%;
   background: radial-gradient(circle, #fff 0%, var(--accent) 40%, transparent 70%);
   box-shadow: var(--glow); animation: pulse 3s ease-in-out infinite; }
