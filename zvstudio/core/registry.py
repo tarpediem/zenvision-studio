@@ -9,8 +9,14 @@ from .applets.clock import ClockApplet
 from .applets.nowplaying import NowPlayingApplet
 from .applets.player import PlayerApplet
 from .applets.sysmon import SysmonApplet
+from .applets.text import TextApplet
+from .applets.vumeter import VuMeterApplet
+from .applets.weather import WeatherApplet
 
-BUILTIN = [ClockApplet, SysmonApplet, NowPlayingApplet, PlayerApplet]
+BUILTIN = [
+    ClockApplet, SysmonApplet, NowPlayingApplet, VuMeterApplet,
+    PlayerApplet, TextApplet, WeatherApplet,
+]
 
 
 def all_applets() -> dict[str, type[Applet]]:

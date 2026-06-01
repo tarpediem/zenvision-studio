@@ -16,11 +16,14 @@ widgets in a few lines.
 ## Features
 
 - **Applets**: clock, system monitor (CPU/RAM/temp + sparkline), now-playing
-  (MPRIS marquee + progress), and a media player (image / GIF / video → panel).
+  (MPRIS marquee + progress, pops in on track changes), **VU-meter** (audio-reactive),
+  **text** marquee, **weather** (Open-Meteo), and a media player (image / GIF / video).
+- **Web UI**: a polished dashboard with a live panel mirror, an **in-browser
+  animation editor** (draw frames → send to the panel), per-applet settings,
+  brightness/power, playlist editor, and drag-and-drop upload. Works from your
+  phone over the LAN / Tailscale.
 - **Compositor**: rotates a playlist of scenes; an applet can *preempt* (e.g.
-  now-playing takes over when music starts). Flicker-free streaming.
-- **Web UI**: live mirror of the panel, brightness, on/off, applet switching,
-  drag-and-drop file upload. Reachable from your phone over the LAN / Tailscale.
+  now-playing pops in when the track changes). Flicker-free streaming.
 - **Cross-desktop**: nothing depends on KDE/GNOME — the core is a daemon, the UI is
   a browser page. Optional tray launcher.
 - **Hardware-free dev**: a `mock` backend renders to a preview/PNG so the whole

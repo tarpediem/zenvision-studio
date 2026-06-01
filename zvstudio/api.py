@@ -52,6 +52,24 @@ def create_app(daemon: Daemon) -> FastAPI:
         daemon.set_playlist(payload.get("playlist", []))
         return {"ok": True}
 
+    @app.post("/api/draw")
+    def draw(payload: dict) -> dict:
+        import base64
+        import io
+
+        from PIL import Image
+
+        frames = []
+        for d in payload.get("frames", []):
+            b = d.split(",", 1)[-1]
+            try:
+                frames.append(Image.open(io.BytesIO(base64.b64decode(b))).convert("L"))
+            except Exception:
+                continue
+        if frames:
+            daemon.draw(frames)
+        return {"ok": True, "n": len(frames)}
+
     @app.post("/api/upload")
     async def upload(file: UploadFile, play: bool = True) -> dict:
         dest = cfg.uploads_dir() / Path(file.filename).name

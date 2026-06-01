@@ -2,45 +2,102 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>zenvision-studio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>zenvision · studio</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <header>
-    <h1>zenvision&middot;studio</h1>
-    <span id="status" class="muted">connecting…</span>
-  </header>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand"><span class="spark"></span> zenvision<span class="dim">·studio</span></div>
+      <div class="top-actions">
+        <span id="status" class="pill">…</span>
+        <button id="power" class="icon-btn" title="Power"></button>
+      </div>
+    </header>
 
-  <section class="preview">
-    <img id="screen" alt="panel preview" width="512" height="128">
-  </section>
-
-  <section class="controls">
-    <div class="row">
-      <button id="power" class="toggle">Power</button>
-      <label class="bright">Brightness
+    <!-- the lid screen mockup -->
+    <section class="stage">
+      <div class="lid">
+        <div class="screen"><img id="screen" alt="panel" width="512" height="128"></div>
+        <div class="hinge"></div>
+      </div>
+      <div class="bright">
+        <svg viewBox="0 0 24 24" class="i"><circle cx="12" cy="12" r="5"/><g stroke-width="2"><path d="M12 1v3M12 20v3M1 12h3M20 12h3M4 4l2 2M18 18l2 2M20 4l-2 2M6 18l-2 2"/></g></svg>
         <input id="brightness" type="range" min="0" max="255" value="255">
-        <span id="brightval">255</span>
-      </label>
-    </div>
+        <span id="brightval" class="mono">255</span>
+      </div>
+    </section>
 
-    <div class="block">
-      <h2>Applets</h2>
-      <div id="applets" class="applets"></div>
-      <button id="resume" class="ghost">↻ Resume playlist</button>
-    </div>
+    <nav class="tabs">
+      <button class="tab active" data-tab="applets">Applets</button>
+      <button class="tab" data-tab="draw">Draw</button>
+      <button class="tab" data-tab="files">Files</button>
+      <button class="tab" data-tab="playlist">Playlist</button>
+    </nav>
 
-    <div class="block">
-      <h2>Play a file</h2>
-      <p class="muted">Image, GIF or video — auto-fit to 256&times;64.</p>
-      <input id="file" type="file" accept="image/*,video/*">
-    </div>
-  </section>
+    <main>
+      <section class="panel-view active" id="tab-applets">
+        <div id="applets" class="grid"></div>
+        <button id="resume" class="ghost-btn">↻ Resume auto playlist</button>
+      </section>
 
-  <footer class="muted">
-    zenvision-studio &middot; <a href="https://github.com/tarpediem/zenvision-studio">github</a>
-  </footer>
+      <section class="panel-view" id="tab-draw">
+        <div class="editor">
+          <div class="tools">
+            <button class="tool active" data-tool="pen" title="Pen (white)">✏︎</button>
+            <button class="tool" data-tool="erase" title="Eraser (black)">⌫</button>
+            <label class="size">size
+              <input id="brush" type="range" min="1" max="8" value="2">
+            </label>
+            <button id="clear" class="mini">clear</button>
+            <button id="invert" class="mini">invert</button>
+          </div>
+          <canvas id="pad" width="256" height="64"></canvas>
+          <div id="filmstrip" class="filmstrip"></div>
+          <div class="editor-actions">
+            <button id="frame-add" class="mini">+ frame</button>
+            <button id="frame-dup" class="mini">duplicate</button>
+            <button id="frame-del" class="mini">delete</button>
+            <label class="size">fps <input id="efps" type="number" min="1" max="30" value="12"></label>
+            <button id="play" class="mini">▶ preview</button>
+            <button id="send" class="cta">Send to panel →</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-view" id="tab-files">
+        <label id="drop" class="dropzone">
+          <input id="file" type="file" accept="image/*,video/*" hidden>
+          <div class="drop-inner">
+            <div class="drop-ico">⬆</div>
+            <div>Drop an image, GIF or video<br><span class="dim">or click to browse — auto-fit to 256×64</span></div>
+          </div>
+        </label>
+      </section>
+
+      <section class="panel-view" id="tab-playlist">
+        <p class="dim">Auto rotation between these scenes. Now-playing pops in on track changes.</p>
+        <div id="playlist" class="plist"></div>
+        <button id="pl-resume" class="ghost-btn">↻ Run playlist</button>
+      </section>
+    </main>
+
+    <footer class="foot dim">
+      zenvision-studio · <a href="https://github.com/tarpediem/zenvision-studio">source</a>
+    </footer>
+  </div>
+
+  <div id="drawer" class="drawer">
+    <div class="drawer-card">
+      <div class="drawer-head"><span id="drawer-title">Applet</span>
+        <button id="drawer-close" class="mini">✕</button></div>
+      <div id="drawer-fields" class="fields"></div>
+      <div class="drawer-foot">
+        <button id="drawer-apply" class="cta">Show with these settings</button>
+      </div>
+    </div>
+  </div>
 
   <script src="/static/app.js"></script>
 </body>
