@@ -6,7 +6,14 @@ from importlib import metadata
 
 from .applets.base import Applet
 from .applets.clock import ClockApplet
-from .applets.cycle import CycleApplet
+from .applets.cycle import CycleApplet, LayoutVJApplet
+from .applets.fx import (
+    FireApplet,
+    MatrixApplet,
+    MetaballsApplet,
+    MoireApplet,
+    RippleApplet,
+)
 from .applets.geo import CubeApplet, StarfieldApplet, TrianglesApplet
 from .applets.logo import LogoApplet
 from .applets.nowplaying import NowPlayingApplet
@@ -26,7 +33,9 @@ from .applets.weather import WeatherApplet
 BUILTIN = [
     ClockApplet, SysmonApplet, NowPlayingApplet, VuMeterApplet,
     PlasmaApplet, TunnelApplet, ScopeApplet, KaleidoApplet, LissajousApplet,
-    TrianglesApplet, CubeApplet, StarfieldApplet, CycleApplet,
+    MoireApplet, MetaballsApplet, RippleApplet, FireApplet, MatrixApplet,
+    TrianglesApplet, CubeApplet, StarfieldApplet,
+    CycleApplet, LayoutVJApplet,
     LogoApplet, PlayerApplet, TextApplet, WeatherApplet,
 ]
 
