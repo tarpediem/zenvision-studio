@@ -112,6 +112,12 @@ def cmd_show(args) -> int:
     return 0
 
 
+def cmd_tray(args) -> int:
+    from .tray import run_tray
+
+    return run_tray(args.url)
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="zvstudio", description="Drive the ZenVision lid OLED.")
     p.add_argument("--url", default=DEFAULT_URL, help="daemon URL for client commands")
@@ -151,6 +157,8 @@ def build_parser() -> argparse.ArgumentParser:
     ss = sub.add_parser("show", help="pin a single applet")
     ss.add_argument("applet")
     ss.set_defaults(func=cmd_show)
+
+    sub.add_parser("tray", help="system-tray icon (KDE/SNI; needs the 'tray' extra)").set_defaults(func=cmd_tray)
 
     return p
 

@@ -114,6 +114,22 @@ cp systemd/zvstudio.service ~/.config/systemd/user/
 systemctl --user enable --now zvstudio
 ```
 
+### System-tray icon (KDE / Plasma)
+
+A small tray icon controls the running daemon — open the web UI, toggle power /
+beat-flash, pin an applet, set brightness:
+
+```bash
+pip install -e ".[tray]"
+# KDE uses StatusNotifierItem (SNI), so the AppIndicator backend needs these:
+sudo pacman -S --needed python-gobject libayatana-appindicator   # Arch/CachyOS
+# …and the venv must see system 'gi' — create it with --system-site-packages
+# (or install zvstudio into a Python that already has python-gobject).
+
+zvstudio tray                                  # needs `zvstudio daemon` running
+cp systemd/zvstudio-tray.desktop ~/.config/autostart/   # auto-start on login
+```
+
 ## Write an applet
 
 An applet returns one 256×64 grayscale frame per tick:

@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=zenvision-studio tray
+Comment=System-tray control for the ASUS ZenVision lid OLED
+Exec=zvstudio tray
+Icon=zvstudio
+Terminal=false
+Categories=Utility;
+X-KDE-autostart-after=panel
+# Install (autostart on login):
+#   cp systemd/zvstudio-tray.desktop ~/.config/autostart/
+# Optional menu icon:
+#   cp zvstudio/web/logo.png ~/.local/share/icons/hicolor/256x256/apps/zvstudio.png
