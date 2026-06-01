@@ -10,4 +10,4 @@ dist/
 uploads/
 frames/
 *.gif
-!docs/demo.gif
+!docs/*.gif
