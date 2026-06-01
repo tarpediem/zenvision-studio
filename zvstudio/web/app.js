@@ -141,13 +141,35 @@ let frames = [blankFrame()], cur = 0, tool = "pen", drawing = false, playTimer =
 function blankFrame() { const c = document.createElement("canvas"); c.width = 256; c.height = 64; const x = c.getContext("2d"); x.fillStyle = "#000"; x.fillRect(0, 0, 256, 64); return c.toDataURL(); }
 function loadCur() { const im = new Image(); im.onload = () => { pctx.clearRect(0, 0, 256, 64); pctx.drawImage(im, 0, 0); }; im.src = frames[cur]; }
 function saveCur() { frames[cur] = pad.toDataURL(); drawStrip(); }
-function padXY(e) { const r = pad.getBoundingClientRect(); const t = e.touches ? e.touches[0] : e;
-  return [Math.floor((t.clientX - r.left) * 256 / r.width), Math.floor((t.clientY - r.top) * 64 / r.height)]; }
-function paint(e) { if (!drawing) return; const [x, y] = padXY(e); const b = +$("#brush").value;
-  pctx.fillStyle = tool === "pen" ? "#fff" : "#000"; pctx.fillRect(x - (b >> 1), y - (b >> 1), b, b); }
-pad.addEventListener("pointerdown", (e) => { drawing = true; paint(e); });
-pad.addEventListener("pointermove", paint);
-window.addEventListener("pointerup", () => { if (drawing) { drawing = false; saveCur(); } });
+let lastP = null, penActive = false;
+function padXY(e) { const r = pad.getBoundingClientRect();
+  return [(e.clientX - r.left) * 256 / r.width, (e.clientY - r.top) * 64 / r.height]; }
+function brushColor(e) {
+  if (tool === "erase") return "#000";
+  if (e.pointerType === "pen") {              // pressure -> grayscale shade (16-level panel)
+    const g = Math.max(70, Math.min(255, Math.round(70 + 185 * (e.pressure || 0.4))));
+    return `rgb(${g},${g},${g})`;
+  }
+  return "#fff";
+}
+function stamp(x, y, b, color) { pctx.fillStyle = color; pctx.fillRect(Math.round(x) - (b >> 1), Math.round(y) - (b >> 1), b, b); }
+function strokeTo(e) {
+  const b = +$("#brush").value, color = brushColor(e), [x, y] = padXY(e);
+  if (lastP) {                                 // interpolate so fast strokes have no gaps
+    const dx = x - lastP[0], dy = y - lastP[1], steps = Math.max(1, Math.ceil(Math.hypot(dx, dy)));
+    for (let i = 1; i <= steps; i++) stamp(lastP[0] + dx * i / steps, lastP[1] + dy * i / steps, b, color);
+  } else stamp(x, y, b, color);
+  lastP = [x, y];
+}
+pad.addEventListener("pointerdown", (e) => {
+  if (e.pointerType === "touch" && penActive) return;   // palm rejection
+  if (e.pointerType === "pen") penActive = true;
+  drawing = true; lastP = null; pad.setPointerCapture(e.pointerId); strokeTo(e); e.preventDefault();
+});
+pad.addEventListener("pointermove", (e) => { if (drawing) { strokeTo(e); e.preventDefault(); } });
+function endStroke(e) { if (drawing) { drawing = false; lastP = null; saveCur(); } if (e && e.pointerType === "pen") penActive = false; }
+pad.addEventListener("pointerup", endStroke);
+pad.addEventListener("pointercancel", endStroke);
 $$(".tool").forEach((b) => b.onclick = () => { tool = b.dataset.tool; $$(".tool").forEach((x) => x.classList.remove("active")); b.classList.add("active"); });
 $("#clear").onclick = () => { pctx.fillStyle = "#000"; pctx.fillRect(0, 0, 256, 64); saveCur(); };
 $("#invert").onclick = () => { const d = pctx.getImageData(0, 0, 256, 64); for (let i = 0; i < d.data.length; i += 4) { d.data[i] = d.data[i + 1] = d.data[i + 2] = 255 - d.data[i]; } pctx.putImageData(d, 0, 0); saveCur(); };
