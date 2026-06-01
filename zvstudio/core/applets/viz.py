@@ -149,3 +149,29 @@ class ScopeApplet(_Viz):
         if HAVE_NP:
             return self._feedback(np.asarray(img, dtype=np.float32))
         return img
+
+
+class KaleidoApplet(_Viz):
+    meta = AppletMeta(key="kaleido", name="Kaleidoscope", description="Mirrored audio mandala",
+                      config_schema={"fps": {"type": "int", "default": 30, "label": "FPS"},
+                                     "segments": {"type": "int", "default": 6, "label": "Segments"},
+                                     "trails": {**TRAILS, "default": 60}})
+
+    def render(self, ctx: Ctx):
+        if not HAVE_NP:
+            return self._pulse(ctx)
+        gx, gy = self._grids()
+        a = self._audio
+        t, bass, lvl, treble = ctx.t, a.bass, a.level, a.treble
+        dx, dy = gx - 0.5, gy - 0.5
+        r = np.sqrt(dx * dx + dy * dy)
+        ang = np.arctan2(dy, dx)
+        seg = max(2, int(self.config.get("segments", 6)))
+        step = 2 * math.pi / seg
+        af = np.abs(np.mod(ang + t * 0.3, step) - step / 2)   # fold into a mirrored wedge
+        v = (np.sin(af * seg + r * (8 + 10 * bass) - t * 1.5)
+             + np.sin(r * (18 + 12 * treble) - t * 2.0))
+        lo, hi = float(v.min()), float(v.max())
+        v = (v - lo) / (hi - lo + 1e-6)
+        g = v * (0.50 + 0.50 * lvl) * 255.0
+        return self._feedback(g)
