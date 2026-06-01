@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import asyncio
 import threading
+import time
 
 from PIL import Image
 
@@ -19,7 +20,10 @@ class MprisWatcher:
 
     def __init__(self, interval: float = 1.0) -> None:
         self.interval = interval
-        self.state: dict = {"playing": False, "title": "", "artist": "", "pos": 0.0, "length": 0.0}
+        self.state: dict = {"playing": False, "title": "", "artist": "", "pos": 0.0,
+                            "length": 0.0, "changed_at": 0.0}
+        self._last_title: str | None = None
+        self._changed_at = 0.0
         self._lock = threading.Lock()
         self._thread: threading.Thread | None = None
         self._stop = threading.Event()
@@ -104,13 +108,18 @@ class MprisWatcher:
             artist = ", ".join(artist)
         length = meta.get("mpris:length")
         length = (length.value if hasattr(length, "value") else length) or 0
+        title = title or ""
+        if title != self._last_title:
+            self._last_title = title
+            self._changed_at = time.monotonic()
         with self._lock:
             self.state = {
                 "playing": status == "Playing",
-                "title": title or "",
+                "title": title,
                 "artist": artist or "",
                 "pos": (pos or 0) / 1e6,
                 "length": (length or 0) / 1e6,
+                "changed_at": self._changed_at,
             }
 
 
@@ -121,7 +130,8 @@ class NowPlayingApplet(Applet):
         description="MPRIS media: scrolling title/artist + progress",
         config_schema={
             "fps": {"type": "int", "default": 20, "label": "FPS"},
-            "preempt": {"type": "bool", "default": True, "label": "Take over when playing"},
+            "preempt": {"type": "bool", "default": True, "label": "Pop up on track change"},
+            "focus_secs": {"type": "int", "default": 8, "label": "Pop-up seconds (0 = stay while playing)"},
             "speed": {"type": "int", "default": 60, "label": "Scroll px/s"},
         },
     )
@@ -135,9 +145,16 @@ class NowPlayingApplet(Applet):
             NowPlayingApplet._watcher.start()
 
     def wants_focus(self) -> bool:
-        if not self.config.get("preempt"):
+        if not self.config.get("preempt") or not self._watcher:
             return False
-        return bool(self._watcher and self._watcher.snapshot().get("playing"))
+        st = self._watcher.snapshot()
+        if not st.get("playing"):
+            return False
+        window = float(self.config.get("focus_secs", 8) or 0)
+        if window <= 0:
+            return True  # legacy behavior: stay while playing
+        # only grab focus for `window` seconds after the track changes
+        return (time.monotonic() - st.get("changed_at", 0.0)) < window
 
     def render(self, ctx: Ctx) -> Image.Image:
         w, h = self.size
