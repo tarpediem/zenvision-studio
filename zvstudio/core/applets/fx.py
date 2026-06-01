@@ -95,7 +95,7 @@ class RippleApplet(_Viz):
         if int(ctx.t * 2) != int((ctx.t - 0.05) * 2) and beat <= 0.4:
             nxt[h // 2, random.randint(2, w - 3)] += 120
         self._prev, self._cur = cur, nxt
-        g = np.clip(128 + nxt, 0, 255).astype(np.uint8)
+        g = np.clip(np.abs(nxt) * 7.0, 0, 255).astype(np.uint8)   # dark water, bright ripples
         from PIL import Image
         return Image.fromarray(g, "L")
 
@@ -130,13 +130,14 @@ class MatrixApplet(_Viz):
     meta = AppletMeta(key="matrix", name="Matrix", description="Falling code rain",
                       config_schema={"fps": {"type": "int", "default": 18, "label": "FPS"}})
 
-    GLYPH = "01<>/\\|=+*"
+    GLYPH = ("アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホ"
+             "マミムメモヤユヨラリルレロワヲンｱｲｳｴｵ0123456789")
 
     def __init__(self, *a, **k) -> None:
         super().__init__(*a, **k)
         self._heads = None
-        self._cw = 8
-        self._ch = 11
+        self._cw = 13
+        self._ch = 14
 
     def render(self, ctx: Ctx):
         w, h = self.size
@@ -147,7 +148,7 @@ class MatrixApplet(_Viz):
         d = ImageDraw.Draw(img)
         a = self._audio
         spd = self._ch * (0.6 + 1.6 * (a.level if a.ok else 0.4))
-        f = F.font(self._ch)
+        f = F.cjk_font(self._ch)
         for c in range(cols):
             self._heads[c] += spd / 30.0
             if self._heads[c] - 6 * self._ch > h:

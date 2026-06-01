@@ -15,6 +15,14 @@ _FONT_CANDIDATES = [
 ]
 
 
+_CJK_CANDIDATES = [
+    ("/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc", 0),
+    ("/usr/share/fonts/noto-cjk/NotoSansCJK-Bold.ttc", 0),
+    ("/usr/share/fonts/adobe-source-han-sans/SourceHanSansCN-Regular.otf", 0),
+    ("/usr/share/fonts/noto/NotoSansJP-Regular.ttf", 0),
+]
+
+
 @functools.lru_cache(maxsize=16)
 def font(size: int) -> ImageFont.FreeTypeFont:
     for path in _FONT_CANDIDATES:
@@ -23,6 +31,17 @@ def font(size: int) -> ImageFont.FreeTypeFont:
         except OSError:
             continue
     return ImageFont.load_default()
+
+
+@functools.lru_cache(maxsize=16)
+def cjk_font(size: int) -> ImageFont.FreeTypeFont:
+    """A font able to render CJK / katakana (for the Matrix effect)."""
+    for path, idx in _CJK_CANDIDATES:
+        try:
+            return ImageFont.truetype(path, size, index=idx)
+        except OSError:
+            continue
+    return font(size)
 
 
 def canvas(w: int = WIDTH, h: int = HEIGHT) -> Image.Image:
