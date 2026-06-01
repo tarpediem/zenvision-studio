@@ -60,7 +60,7 @@ class PlasmaApplet(_Viz):
              + np.sin(np.sqrt((gx - 0.5) ** 2 + (gy - 0.5) ** 2) * 18.0 - t * 2.0 * (1.0 + lvl)))
         lo, hi = float(v.min()), float(v.max())
         v = (v - lo) / (hi - lo + 1e-6)
-        g = np.clip(v * (0.45 + 0.75 * lvl) * 255.0, 0, 255).astype(np.uint8)
+        g = np.clip(v * (0.50 + 0.50 * lvl) * 255.0, 0, 255).astype(np.uint8)
         return Image.fromarray(g, "L")
 
 
@@ -81,7 +81,7 @@ class TunnelApplet(_Viz):
              + np.sin(1.0 / r * (2.5 + 2.0 * bass) - t * 3.0))
         lo, hi = float(u.min()), float(u.max())
         u = (u - lo) / (hi - lo + 1e-6)
-        g = np.clip(u * (0.4 + 0.8 * lvl) * 255.0, 0, 255).astype(np.uint8)
+        g = np.clip(u * (0.50 + 0.50 * lvl) * 255.0, 0, 255).astype(np.uint8)
         return Image.fromarray(g, "L")
 
 
@@ -98,8 +98,14 @@ class ScopeApplet(_Viz):
         wave = a.wave if (a.ok and any(a.wave)) else None
         if wave:
             n = len(wave)
-            pts = [(i * (w - 1) / (n - 1), h / 2 - max(-1.0, min(1.0, wave[i])) * amp) for i in range(n)]
-            d.line(pts, fill=255, width=1)
+            cy = h / 2
+            pts = []
+            for i in range(n):
+                x = i * (w - 1) / (n - 1)
+                y = cy - max(-1.0, min(1.0, wave[i])) * amp
+                d.line([(x, cy), (x, y)], fill=70)        # tonal body (mid gray)
+                pts.append((x, y))
+            d.line(pts, fill=255, width=1)                # bright trace on top
         else:
             lvl = a.level if a.ok else (0.5 - 0.5 * math.cos(ctx.t * 2))
             d.line([(0, h / 2), (w - 1, h / 2)], fill=70)
