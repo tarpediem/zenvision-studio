@@ -121,5 +121,6 @@ VU-meter pull from this singleton.
 - The daemon thread swallows per-frame render exceptions to stay alive — a broken applet shows
   a blank/frozen frame rather than killing the loop. Check logs/preview, not a crash.
 - Config persists to `~/.config/zvstudio/config.json`; uploads go to `~/.config/zvstudio/uploads/`.
-- Non-root USB access needs `udev/99-zenvision.rules` installed. Run at login via the user
+- Non-root USB access needs `udev/70-zenvision.rules` installed (the `70-` prefix matters —
+  it must sort before `73-seat-late.rules` or the `uaccess` ACL is never applied). Run at login via the user
   systemd unit in `systemd/` (runs as your user so MPRIS/now-playing works).

@@ -81,7 +81,7 @@ pip install -e ".[audio,video]"     # audio = numpy (spectrum/visualisers); vide
 Non-root USB access:
 
 ```bash
-sudo cp udev/99-zenvision.rules /etc/udev/rules.d/
+sudo cp udev/70-zenvision.rules /etc/udev/rules.d/
 sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
 
