@@ -11,11 +11,13 @@ from .applets.nowplaying import NowPlayingApplet
 from .applets.player import PlayerApplet
 from .applets.sysmon import SysmonApplet
 from .applets.text import TextApplet
+from .applets.viz import PlasmaApplet, ScopeApplet, TunnelApplet
 from .applets.vumeter import VuMeterApplet
 from .applets.weather import WeatherApplet
 
 BUILTIN = [
     ClockApplet, SysmonApplet, NowPlayingApplet, VuMeterApplet,
+    PlasmaApplet, TunnelApplet, ScopeApplet,
     LogoApplet, PlayerApplet, TextApplet, WeatherApplet,
 ]
 
