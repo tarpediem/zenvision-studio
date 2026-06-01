@@ -1,5 +1,9 @@
 # zenvision-studio
 
+> 🟢 **The first open-source Linux support for the ASUS ZenVision lid OLED.**
+> The protocol was reverse-engineered from scratch (Ghidra on MyASUS) and lives in
+> the companion driver **[zenvision-linux](https://github.com/tarpediem/zenvision-linux)**.
+
 Drive the **ASUS ZenVision** lid OLED (the 256×64 monochrome screen in the lid of
 the Zenbook 14X OLED Space Edition, UX5401ZAS) with **live applets**, play and
 **import custom animations**, all from Linux — and from any desktop or your phone.
@@ -16,12 +20,18 @@ widgets in a few lines.
 ## Features
 
 - **Applets**: clock, system monitor (CPU/RAM/temp + sparkline), now-playing
-  (MPRIS marquee + progress, pops in on track changes), **VU-meter** (audio-reactive),
-  **text** marquee, **weather** (Open-Meteo), and a media player (image / GIF / video).
+  (MPRIS marquee + progress), **text** marquee, **weather** (Open-Meteo), and a
+  media player (image / GIF / video).
+- **Audio-reactive visualisers**: a VU-meter spectrum plus demoscene effects —
+  plasma, tunnel, kaleidoscope, Lissajous, moiré, metaballs, ripple, fire,
+  katakana **Matrix** rain, starfield, wireframe cube, triangles — with MilkDrop-style
+  trails, a global **beat-flash**, an **Auto-VJ** that cycles them, and a **Layout-VJ**
+  that switches multi-effect compositions in tempo.
 - **Web UI**: a polished dashboard with a live panel mirror, an **in-browser
-  animation editor** (draw frames → send to the panel), per-applet settings,
-  brightness/power, playlist editor, and drag-and-drop upload. Works from your
-  phone over the LAN / Tailscale.
+  animation editor** (stylus-friendly, draw frames → send to the panel), a
+  **drag-and-drop zone layout editor** (split the panel into regions), per-applet
+  settings, brightness/power and drag-and-drop upload. Works from your phone over
+  the LAN / Tailscale.
 - **Compositor**: rotates a playlist of scenes; an applet can *preempt* (e.g.
   now-playing pops in when the track changes). Flicker-free streaming.
 - **Cross-desktop**: nothing depends on KDE/GNOME — the core is a daemon, the UI is
