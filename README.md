@@ -142,8 +142,13 @@ web/         Vanilla-JS dashboard, zone editor, frame editor (no build step)
 
 ## Roadmap
 
-In-browser timeline editor · richer triggers (notifications, lid, idle) · more panels
-behind the `Panel` abstraction · PyPI/AUR packaging.
+**Already shipped** (was the v2 wishlist): in-browser frame **animation editor**,
+weather + **VU-meter** applets, the full audio-reactive visualiser / Auto-VJ suite,
+drag-and-drop zone layouts, and the now-playing **preempt** trigger.
+
+**Next:** multi-frame **timeline** editor (keyframes/easing) · richer triggers
+(notifications, lid events, idle) · more applets (RSS/ticker, calendar) · more panels
+behind the `Panel` abstraction · PyPI / AUR packaging.
 
 ## Credits
 
