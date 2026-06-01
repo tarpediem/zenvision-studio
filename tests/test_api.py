@@ -43,3 +43,17 @@ def test_pin_applet():
         assert client.post("/api/pin", json={"key": "clock"}).json()["ok"] is True
     finally:
         d.stop()
+
+
+def test_draw_accepts_frames_and_fps():
+    # 1x1 black PNG as a data URL (the editor sends 256x64, but any decodable PNG works)
+    px = (
+        "data:image/png;base64,"
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+    )
+    client, d = make_client()
+    try:
+        r = client.post("/api/draw", json={"frames": [px, px], "fps": 24}).json()
+        assert r["ok"] is True and r["n"] == 2
+    finally:
+        d.stop()

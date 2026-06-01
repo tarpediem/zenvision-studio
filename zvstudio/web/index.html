@@ -71,8 +71,26 @@
           </div>
           <canvas id="pad" width="256" height="64"></canvas>
           <div id="filmstrip" class="filmstrip"></div>
+          <div class="timeline-bar">
+            <span class="tl-label">timeline</span>
+            <label class="size" title="Interpolated frames generated between each pair of keyframes">
+              tween <input id="tween" type="number" min="0" max="30" value="0"></label>
+            <label class="size" title="Easing of the tween that ends on the selected keyframe">ease
+              <select id="ease">
+                <option value="linear">linear</option>
+                <option value="in">ease-in</option>
+                <option value="out">ease-out</option>
+                <option value="inout">ease-in-out</option>
+              </select>
+            </label>
+            <label class="size" title="How many frames to hold on the selected keyframe">
+              hold <input id="hold" type="number" min="1" max="60" value="1"></label>
+            <label class="size" title="Tween from the last keyframe back to the first for a seamless loop">
+              <input id="loopt" type="checkbox" checked> loop tween</label>
+            <span id="fcount" class="hint"></span>
+          </div>
           <div class="editor-actions">
-            <button id="frame-add" class="mini">+ frame</button>
+            <button id="frame-add" class="mini">+ keyframe</button>
             <button id="frame-dup" class="mini">duplicate</button>
             <button id="frame-del" class="mini">delete</button>
             <label class="size">fps <input id="efps" type="number" min="1" max="30" value="12"></label>

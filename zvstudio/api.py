@@ -92,7 +92,7 @@ def create_app(daemon: Daemon) -> FastAPI:
             except Exception:
                 continue
         if frames:
-            daemon.draw(frames)
+            daemon.draw(frames, payload.get("fps"))
         return {"ok": True, "n": len(frames)}
 
     @app.get("/api/layouts")

@@ -96,11 +96,12 @@ class Daemon:
         cfg.save(self.cfg)
         self.apply_config()
 
-    def draw(self, frames) -> None:
+    def draw(self, frames, fps=None) -> None:
         """Pin an in-memory frame sequence (from the web editor)."""
         from .core.applets.frames import FramesApplet
 
-        ap = FramesApplet(size=self.panel.size, frames=frames)
+        config = {"fps": float(fps)} if fps else None
+        ap = FramesApplet(size=self.panel.size, frames=frames, config=config)
         self.comp.pin(ap)
 
     def set_layout(self, zones_spec: list[dict]) -> None:

@@ -139,10 +139,54 @@ async function uploadFile(f) {
 /* ---- editor ---- */
 const pad = $("#pad"), pctx = pad.getContext("2d");
 pctx.imageSmoothingEnabled = false;
-let frames = [blankFrame()], cur = 0, tool = "pen", drawing = false, playTimer = null;
+let frames = [blankFrame()], meta = [kfMeta()], cur = 0, tool = "pen", drawing = false, playTimer = null;
 function blankFrame() { const c = document.createElement("canvas"); c.width = 256; c.height = 64; const x = c.getContext("2d"); x.fillStyle = "#000"; x.fillRect(0, 0, 256, 64); return c.toDataURL(); }
-function loadCur() { const im = new Image(); im.onload = () => { pctx.clearRect(0, 0, 256, 64); pctx.drawImage(im, 0, 0); }; im.src = frames[cur]; }
-function saveCur() { frames[cur] = pad.toDataURL(); drawStrip(); }
+function kfMeta() { return { hold: 1, ease: "linear" }; }
+function loadCur() {
+  const im = new Image(); im.onload = () => { pctx.clearRect(0, 0, 256, 64); pctx.drawImage(im, 0, 0); }; im.src = frames[cur];
+  $("#hold").value = meta[cur].hold; $("#ease").value = meta[cur].ease;
+}
+function saveCur() { frames[cur] = pad.toDataURL(); drawStrip(); updateCount(); }
+
+/* ---- timeline: easing + keyframe interpolation ---- */
+function easeFn(name) {
+  switch (name) {
+    case "in": return (t) => t * t;
+    case "out": return (t) => 1 - (1 - t) * (1 - t);
+    case "inout": return (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+    default: return (t) => t;
+  }
+}
+function toImageData(url) {
+  return new Promise((res) => { const im = new Image(); im.onload = () => { const c = document.createElement("canvas"); c.width = 256; c.height = 64; const x = c.getContext("2d"); x.drawImage(im, 0, 0); res(x.getImageData(0, 0, 256, 64)); }; im.src = url; });
+}
+function blendURL(a, b, t) {
+  const out = new ImageData(256, 64);
+  for (let i = 0; i < a.data.length; i++) out.data[i] = a.data[i] + (b.data[i] - a.data[i]) * t;
+  const c = document.createElement("canvas"); c.width = 256; c.height = 64; c.getContext("2d").putImageData(out, 0, 0);
+  return c.toDataURL();
+}
+function tweenCount() { const tw = Math.max(0, +$("#tween").value || 0), n = frames.length;
+  const segs = $("#loopt").checked ? n : Math.max(0, n - 1);
+  return meta.reduce((s, m) => s + Math.max(1, m.hold || 1), 0) + (n > 1 ? tw * segs : 0); }
+function updateCount() {
+  const total = tweenCount(), fps = +$("#efps").value || 12;
+  $("#fcount").textContent = `${frames.length} keyframes → ${total} frames · ${(total / fps).toFixed(1)}s @ ${fps}fps`;
+}
+// Expand keyframes into the full frame sequence the panel will loop over.
+async function expand() {
+  const ids = await Promise.all(frames.map(toImageData));
+  const tw = Math.max(0, +$("#tween").value || 0), loop = $("#loopt").checked, n = frames.length, out = [];
+  for (let k = 0; k < n; k++) {
+    for (let h = 0; h < Math.max(1, meta[k].hold || 1); h++) out.push(frames[k]);
+    const isLast = k === n - 1, nxt = isLast ? 0 : k + 1;
+    if (tw > 0 && n > 1 && (!isLast || loop)) {
+      const ef = easeFn(meta[nxt].ease);
+      for (let j = 1; j <= tw; j++) out.push(blendURL(ids[k], ids[nxt], ef(j / (tw + 1))));
+    }
+  }
+  return out;
+}
 let lastP = null, penActive = false;
 function padXY(e) { const r = pad.getBoundingClientRect();
   return [(e.clientX - r.left) * 256 / r.width, (e.clientY - r.top) * 64 / r.height]; }
@@ -175,25 +219,36 @@ pad.addEventListener("pointercancel", endStroke);
 $$(".tool").forEach((b) => b.onclick = () => { tool = b.dataset.tool; $$(".tool").forEach((x) => x.classList.remove("active")); b.classList.add("active"); });
 $("#clear").onclick = () => { pctx.fillStyle = "#000"; pctx.fillRect(0, 0, 256, 64); saveCur(); };
 $("#invert").onclick = () => { const d = pctx.getImageData(0, 0, 256, 64); for (let i = 0; i < d.data.length; i += 4) { d.data[i] = d.data[i + 1] = d.data[i + 2] = 255 - d.data[i]; } pctx.putImageData(d, 0, 0); saveCur(); };
-$("#frame-add").onclick = () => { frames.splice(cur + 1, 0, blankFrame()); cur++; loadCur(); drawStrip(); };
-$("#frame-dup").onclick = () => { frames.splice(cur + 1, 0, frames[cur]); cur++; loadCur(); drawStrip(); };
-$("#frame-del").onclick = () => { if (frames.length > 1) { frames.splice(cur, 1); cur = Math.max(0, cur - 1); loadCur(); drawStrip(); } };
+$("#frame-add").onclick = () => { saveCur(); frames.splice(cur + 1, 0, blankFrame()); meta.splice(cur + 1, 0, kfMeta()); cur++; loadCur(); drawStrip(); updateCount(); };
+$("#frame-dup").onclick = () => { saveCur(); frames.splice(cur + 1, 0, frames[cur]); meta.splice(cur + 1, 0, { ...meta[cur] }); cur++; loadCur(); drawStrip(); updateCount(); };
+$("#frame-del").onclick = () => { if (frames.length > 1) { frames.splice(cur, 1); meta.splice(cur, 1); cur = Math.max(0, cur - 1); loadCur(); drawStrip(); updateCount(); } };
+$("#hold").onchange = () => { meta[cur].hold = Math.max(1, +$("#hold").value || 1); drawStrip(); updateCount(); };
+$("#ease").onchange = () => { meta[cur].ease = $("#ease").value; drawStrip(); };
+$("#tween").onchange = updateCount;
+$("#efps").onchange = updateCount;
+$("#loopt").onchange = updateCount;
 function drawStrip() {
   const strip = $("#filmstrip"); strip.innerHTML = "";
   frames.forEach((f, i) => {
+    const wrap = document.createElement("div"); wrap.className = "kf";
     const c = document.createElement("canvas"); c.width = 256; c.height = 64;
     if (i === cur) c.classList.add("active");
     const im = new Image(); im.onload = () => c.getContext("2d").drawImage(im, 0, 0); im.src = f;
     c.onclick = () => { saveCur(); cur = i; loadCur(); drawStrip(); };
-    strip.appendChild(c);
+    const tag = document.createElement("span"); tag.className = "kf-tag";
+    const h = Math.max(1, meta[i].hold || 1);
+    tag.textContent = `${i + 1}${h > 1 ? "·×" + h : ""}${i > 0 && meta[i].ease !== "linear" ? "·" + meta[i].ease : ""}`;
+    wrap.appendChild(c); wrap.appendChild(tag); strip.appendChild(wrap);
   });
 }
-$("#play").onclick = (e) => {
-  if (playTimer) { clearInterval(playTimer); playTimer = null; e.target.textContent = "▶ preview"; return; }
+$("#play").onclick = async (e) => {
+  if (playTimer) { clearInterval(playTimer); playTimer = null; e.target.textContent = "▶ preview"; loadCur(); return; }
+  saveCur();
+  const seq = await expand(); if (!seq.length) return;
   e.target.textContent = "■ stop"; let i = 0;
-  playTimer = setInterval(() => { const im = new Image(); im.onload = () => { pctx.clearRect(0, 0, 256, 64); pctx.drawImage(im, 0, 0); }; im.src = frames[i % frames.length]; i++; }, 1000 / (+$("#efps").value || 12));
+  playTimer = setInterval(() => { const im = new Image(); im.onload = () => { pctx.clearRect(0, 0, 256, 64); pctx.drawImage(im, 0, 0); }; im.src = seq[i % seq.length]; i++; }, 1000 / (+$("#efps").value || 12));
 };
-$("#send").onclick = async () => { saveCur(); await api("/api/draw", "POST", { frames }); refreshStatus(); };
+$("#send").onclick = async () => { saveCur(); const seq = await expand(); await api("/api/draw", "POST", { frames: seq, fps: +$("#efps").value || 12 }); refreshStatus(); };
 
 /* ---- visual zone editor ---- */
 const PW = 256, PH = 64, GRID = 2;
@@ -272,7 +327,7 @@ async function loadLayouts() {
 }
 
 /* ---- boot ---- */
-loadCur(); drawStrip(); startPreview();
+loadCur(); drawStrip(); updateCount(); startPreview();
 loadApplets().then(() => { renderZones(); refreshStatus(); });
 loadLayouts();
 setInterval(refreshStatus, 3000);

@@ -25,8 +25,8 @@ The Zenbook 14X OLED Space Edition has a tiny **256×64 monochrome OLED in the l
 ("ZenVision"). ASUS only ships a Windows app for it. This project drives it from
 Linux with a small **daemon + web UI**: live **applets** (clock, system stats,
 now-playing…), a gallery of **audio-reactive demoscene visualisers**, an
-**in-browser animation editor**, and a **drag-and-drop zone layout** so you can put
-several effects on screen at once.
+**in-browser timeline animation editor** (keyframes + tweening), and a
+**drag-and-drop zone layout** so you can put several effects on screen at once.
 
 No `/dev/fb`, no GUI toolkit lock-in — just push grayscale frames over USB. Works the
 same on KDE, GNOME, Sway, or headless.
@@ -43,13 +43,16 @@ that switches multi-effect compositions **in tempo**.
 
 ## The web UI
 
-| Dashboard | Zone layout editor | Animation editor |
+| Dashboard | Zone layout editor | Timeline animation editor |
 |---|---|---|
-| ![dashboard](docs/ui-dashboard.png) | ![layout](docs/ui-layout.png) | ![draw](docs/ui-draw.png) |
+| ![dashboard](docs/ui-dashboard.png) | ![layout](docs/ui-layout.png) | ![timeline](docs/ui-timeline.png) |
 
 Live mirror of the panel, brightness/power, per-applet settings, a drag-and-drop
-**zone editor** (split the panel into regions), and a stylus-friendly **frame editor**
-(draw → send to the panel). Reachable from your phone over the LAN / Tailscale.
+**zone editor** (split the panel into regions), and a stylus-friendly **timeline editor**:
+draw keyframes, then **tween** between them with per-keyframe **easing** (linear /
+ease-in / out / in-out), **hold** durations and a seamless **loop tween** — the editor
+interpolates the in-between frames and streams the result to the panel. Reachable from
+your phone over the LAN / Tailscale.
 
 ## Features
 
@@ -59,7 +62,8 @@ Live mirror of the panel, brightness/power, per-applet settings, a drag-and-drop
 - **Audio-reactive visualisers** (see above) with trails, beat-flash, Auto-VJ and a
   tempo-synced Layout-VJ.
 - **Web UI**: live panel mirror, per-applet settings, zone layout editor, in-browser
-  animation editor, drag-and-drop upload — works from a phone.
+  **timeline** animation editor (keyframes/tween/easing/loop), drag-and-drop upload —
+  works from a phone.
 - **Compositor**: rotates a playlist of scenes; an applet can *preempt* (now-playing
   pops in on a track change). Flicker-free streaming.
 - **Cross-desktop**: a headless daemon + a browser page — nothing depends on KDE/GNOME.
@@ -142,13 +146,14 @@ web/         Vanilla-JS dashboard, zone editor, frame editor (no build step)
 
 ## Roadmap
 
-**Already shipped** (was the v2 wishlist): in-browser frame **animation editor**,
-weather + **VU-meter** applets, the full audio-reactive visualiser / Auto-VJ suite,
-drag-and-drop zone layouts, and the now-playing **preempt** trigger.
+**Already shipped** (was the v2 wishlist): in-browser **timeline animation editor**
+(keyframes + tween + easing + loop), weather + **VU-meter** applets, the full
+audio-reactive visualiser / Auto-VJ suite, drag-and-drop zone layouts, and the
+now-playing **preempt** trigger.
 
-**Next:** multi-frame **timeline** editor (keyframes/easing) · richer triggers
-(notifications, lid events, idle) · more applets (RSS/ticker, calendar) · more panels
-behind the `Panel` abstraction · PyPI / AUR packaging.
+**Next:** richer triggers (notifications, lid events, idle) · more applets
+(RSS/ticker, calendar) · more panels behind the `Panel` abstraction · PyPI / AUR
+packaging.
 
 ## Credits
 

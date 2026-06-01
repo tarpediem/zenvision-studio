@@ -25,4 +25,7 @@ class FramesApplet(Applet):
     def render(self, ctx: Ctx) -> Image.Image:
         if not self._frames:
             return F.canvas(*self.size)
-        return self._frames[ctx.frame % len(self._frames)]
+        # Advance by our own fps (decoupled from the compositor's tick rate) so
+        # the editor's playback speed matches what lands on the panel.
+        idx = int(ctx.t * self.fps) % len(self._frames)
+        return self._frames[idx]
