@@ -136,6 +136,20 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px;
 .sel { background: var(--bg2); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 9px; }
 .builder .cta { width: 100%; }
 
+/* zone editor */
+.zone-editor { position: relative; width: 100%; aspect-ratio: 256 / 64; background: #000; border: 1px solid var(--line);
+  border-radius: 10px; box-shadow: inset 0 0 0 1px #1d2530, var(--glow); overflow: hidden; touch-action: none; margin: 6px 0 12px; }
+.zone { position: absolute; border: 1px solid var(--accent); background: rgba(126, 232, 250, .10);
+  box-sizing: border-box; cursor: move; overflow: hidden; }
+.zone .zsel { position: absolute; top: 3px; left: 3px; max-width: 64%; font-size: 11px; color: var(--fg);
+  background: rgba(0, 0, 0, .65); border: 1px solid var(--line); border-radius: 5px; padding: 2px; }
+.zone .zx { position: absolute; top: 3px; right: 3px; color: var(--warm); background: rgba(0, 0, 0, .5);
+  border: 0; cursor: pointer; font-size: 12px; line-height: 1; padding: 3px 6px; border-radius: 5px; }
+.zone .zhandle { position: absolute; right: 0; bottom: 0; width: 16px; height: 16px; background: var(--accent);
+  cursor: nwse-resize; border-radius: 4px 0 0 0; opacity: .85; touch-action: none; }
+.zrow { display: flex; gap: 8px; align-items: center; }
+.zrow .cta { margin-left: auto; }
+
 .foot { text-align: center; margin-top: 30px; font-size: 13px; }
 .dim { color: var(--muted); }
 @media (max-width: 480px) { #screen { max-width: 90vw; } }

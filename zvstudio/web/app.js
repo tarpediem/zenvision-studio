@@ -193,7 +193,66 @@ $("#play").onclick = (e) => {
 };
 $("#send").onclick = async () => { saveCur(); await api("/api/draw", "POST", { frames }); refreshStatus(); };
 
-/* ---- layout (zones) ---- */
+/* ---- visual zone editor ---- */
+const PW = 256, PH = 64, GRID = 2;
+const zedit = $("#zedit");
+let zones = [{ applet: "logo", x: 0, y: 0, w: 90, h: 64 }, { applet: "clock", x: 90, y: 0, w: 166, h: 64 }];
+let drag = null;
+
+function appletOptions(sel) {
+  return APPLETS.filter((a) => a.key !== "player")
+    .map((a) => `<option value="${a.key}" ${a.key === sel ? "selected" : ""}>${a.name}</option>`).join("");
+}
+function placeEl(el, z) {
+  el.style.left = (z.x / PW * 100) + "%"; el.style.top = (z.y / PH * 100) + "%";
+  el.style.width = (z.w / PW * 100) + "%"; el.style.height = (z.h / PH * 100) + "%";
+}
+function renderZones() {
+  if (!zedit) return;
+  zedit.innerHTML = "";
+  zones.forEach((z, idx) => {
+    const el = document.createElement("div");
+    el.className = "zone"; placeEl(el, z);
+    el.innerHTML = `<select class="zsel">${appletOptions(z.applet)}</select><button class="zx">✕</button><div class="zhandle"></div>`;
+    const sel = el.querySelector(".zsel");
+    sel.onchange = (e) => { z.applet = e.target.value; };
+    sel.onpointerdown = (e) => e.stopPropagation();
+    el.querySelector(".zx").onclick = (e) => { e.stopPropagation(); zones.splice(idx, 1); renderZones(); };
+    el.addEventListener("pointerdown", (e) => {
+      if (e.target.classList.contains("zhandle")) return;
+      startDrag(e, z, "move", el);
+    });
+    el.querySelector(".zhandle").addEventListener("pointerdown", (e) => { e.stopPropagation(); startDrag(e, z, "resize", el); });
+    zedit.appendChild(el);
+  });
+}
+function scale() { const r = zedit.getBoundingClientRect(); return [PW / r.width, PH / r.height]; }
+const snap = (v) => Math.round(v / GRID) * GRID;
+function startDrag(e, z, mode, el) {
+  const [sx, sy] = scale();
+  drag = { z, mode, el, sx, sy, px: e.clientX, py: e.clientY, ox: z.x, oy: z.y, ow: z.w, oh: z.h };
+  el.setPointerCapture(e.pointerId); e.preventDefault();
+}
+window.addEventListener("pointermove", (e) => {
+  if (!drag) return;
+  const dx = (e.clientX - drag.px) * drag.sx, dy = (e.clientY - drag.py) * drag.sy, z = drag.z;
+  if (drag.mode === "move") {
+    z.x = Math.max(0, Math.min(PW - z.w, snap(drag.ox + dx)));
+    z.y = Math.max(0, Math.min(PH - z.h, snap(drag.oy + dy)));
+  } else {
+    z.w = Math.max(16, Math.min(PW - z.x, snap(drag.ow + dx)));
+    z.h = Math.max(12, Math.min(PH - z.y, snap(drag.oh + dy)));
+  }
+  placeEl(drag.el, z);
+});
+window.addEventListener("pointerup", () => { drag = null; });
+if ($("#z-add")) $("#z-add").onclick = () => { zones.push({ applet: "text", x: 0, y: 0, w: 90, h: 32 }); renderZones(); };
+if ($("#z-clear")) $("#z-clear").onclick = () => { zones = []; renderZones(); };
+if ($("#z-apply")) $("#z-apply").onclick = async () => {
+  await api("/api/layout", "POST", { zones: zones.map((z) => ({ applet: z.applet, box: [z.x, z.y, z.w, z.h], config: z.config })) });
+  refreshStatus();
+};
+
 async function loadLayouts() {
   const box = $("#layouts"); if (!box) return;
   const presets = await api("/api/layouts");
@@ -201,31 +260,17 @@ async function loadLayouts() {
   for (const p of presets) {
     const t = document.createElement("div");
     t.className = "tile";
-    const parts = p.zones.map((z) => z.applet).join(" · ");
-    t.innerHTML = `<h3>${p.name}</h3><p>${parts}</p>`;
-    t.onclick = async () => { await api("/api/layout", "POST", { zones: p.zones }); refreshStatus(); };
+    t.innerHTML = `<h3>${p.name}</h3><p>${p.zones.map((z) => z.applet).join(" · ")}</p>`;
+    t.onclick = () => {  // load preset into the editor to tweak, then Apply
+      zones = p.zones.map((z) => ({ applet: z.applet, x: z.box[0], y: z.box[1], w: z.box[2], h: z.box[3], config: z.config }));
+      renderZones();
+    };
     box.appendChild(t);
   }
 }
-function fillZoneSelects() {
-  const opts = APPLETS.filter((a) => a.key !== "player").map((a) => `<option value="${a.key}">${a.name}</option>`).join("");
-  const L = $("#z-left"), R = $("#z-right");
-  if (!L || !R) return;
-  L.innerHTML = opts; R.innerHTML = opts;
-  L.value = "logo"; R.value = "vumeter";
-}
-const applySplit = $("#apply-split");
-if (applySplit) applySplit.onclick = async () => {
-  const lw = Math.round(256 * (+$("#split").value) / 100);
-  const zones = [
-    { applet: $("#z-left").value, box: [0, 0, lw, 64] },
-    { applet: $("#z-right").value, box: [lw, 0, 256 - lw, 64] },
-  ];
-  await api("/api/layout", "POST", { zones }); refreshStatus();
-};
 
 /* ---- boot ---- */
 loadCur(); drawStrip(); startPreview();
-loadApplets().then(() => { fillZoneSelects(); refreshStatus(); });
+loadApplets().then(() => { renderZones(); refreshStatus(); });
 loadLayouts();
 setInterval(refreshStatus, 3000);

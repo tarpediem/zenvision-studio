@@ -46,17 +46,15 @@
       </section>
 
       <section class="panel-view" id="tab-layout">
-        <p class="dim">Split the panel into zones — e.g. an animated logo beside a clock and a VU-meter.</p>
-        <div id="layouts" class="grid"></div>
-        <div class="block builder">
-          <h3 class="bh">Custom split</h3>
-          <div class="brow">
-            <select id="z-left" class="sel"></select>
-            <input id="split" type="range" min="15" max="85" value="40">
-            <select id="z-right" class="sel"></select>
-          </div>
-          <button id="apply-split" class="cta">Apply split</button>
+        <p class="dim">Drag a zone to move it, pull the corner to resize. Pick an applet per zone, then apply.</p>
+        <div id="zedit" class="zone-editor"></div>
+        <div class="zrow">
+          <button id="z-add" class="mini">+ zone</button>
+          <button id="z-clear" class="mini">clear</button>
+          <button id="z-apply" class="cta">Apply to panel →</button>
         </div>
+        <h3 class="bh">Start from a preset</h3>
+        <div id="layouts" class="grid"></div>
       </section>
 
       <section class="panel-view" id="tab-draw">
