@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "zenvision-studio"
-version = "0.2.0"
+version = "0.2.1"
 description = "Drive small lid OLED panels (ASUS ZenVision and friends) with live applets and custom animations"
 readme = "README.md"
 license = "MIT"
@@ -44,9 +44,6 @@ Protocol = "https://github.com/tarpediem/zenvision-linux"
 
 [tool.hatch.build.targets.wheel]
 packages = ["zvstudio"]
-
-[tool.hatch.build.targets.wheel.force-include]
-"zvstudio/web" = "zvstudio/web"
 
 [tool.ruff]
 line-length = 110
