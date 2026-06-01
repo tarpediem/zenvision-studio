@@ -115,16 +115,16 @@ class Compositor:
                 pass
 
     def _pick(self, now: float, scene_idx: list[int]) -> Applet | None:
-        # 1) a preempting applet wins
+        # 1) an explicit manual pin wins — a user choice overrides auto-preempt
+        if self._pinned is not None:
+            return self._pinned
+        # 2) a preempting applet grabs focus during normal rotation (e.g. now-playing)
         for ap in self._preempt:
             try:
                 if ap.wants_focus():
                     return ap
             except Exception:
                 continue
-        # 2) manual pin
-        if self._pinned is not None:
-            return self._pinned
         # 3) playlist rotation
         if not self._scenes:
             return None
