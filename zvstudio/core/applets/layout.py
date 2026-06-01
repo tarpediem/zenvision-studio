@@ -50,7 +50,7 @@ class LayoutApplet(Applet):
         if self.dividers:
             d = ImageDraw.Draw(img)
             W, H = self.size
-            for _, (x, y, bw, bh) in self.zones:
+            for _, (x, y, _bw, _bh) in self.zones:
                 if x > 0:
                     d.line([(x - 1, 2), (x - 1, H - 3)], fill=55)
                 if y > 0:
