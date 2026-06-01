@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>zenvision-studio</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <h1>zenvision&middot;studio</h1>
+    <span id="status" class="muted">connecting…</span>
+  </header>
+
+  <section class="preview">
+    <img id="screen" alt="panel preview" width="512" height="128">
+  </section>
+
+  <section class="controls">
+    <div class="row">
+      <button id="power" class="toggle">Power</button>
+      <label class="bright">Brightness
+        <input id="brightness" type="range" min="0" max="255" value="255">
+        <span id="brightval">255</span>
+      </label>
+    </div>
+
+    <div class="block">
+      <h2>Applets</h2>
+      <div id="applets" class="applets"></div>
+      <button id="resume" class="ghost">↻ Resume playlist</button>
+    </div>
+
+    <div class="block">
+      <h2>Play a file</h2>
+      <p class="muted">Image, GIF or video — auto-fit to 256&times;64.</p>
+      <input id="file" type="file" accept="image/*,video/*">
+    </div>
+  </section>
+
+  <footer class="muted">
+    zenvision-studio &middot; <a href="https://github.com/tarpediem/zenvision-studio">github</a>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

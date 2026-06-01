@@ -1,0 +1,30 @@
+"""Applet discovery: built-ins plus third-party plugins registered under the
+``zvstudio.applets`` entry-point group."""
+from __future__ import annotations
+
+from importlib import metadata
+
+from .applets.base import Applet
+from .applets.clock import ClockApplet
+from .applets.nowplaying import NowPlayingApplet
+from .applets.player import PlayerApplet
+from .applets.sysmon import SysmonApplet
+
+BUILTIN = [ClockApplet, SysmonApplet, NowPlayingApplet, PlayerApplet]
+
+
+def all_applets() -> dict[str, type[Applet]]:
+    reg: dict[str, type[Applet]] = {c.meta.key: c for c in BUILTIN}
+    try:
+        for ep in metadata.entry_points(group="zvstudio.applets"):
+            try:
+                reg[ep.name] = ep.load()
+            except Exception:
+                pass
+    except Exception:
+        pass
+    return reg
+
+
+def get_applet(key: str) -> type[Applet] | None:
+    return all_applets().get(key)

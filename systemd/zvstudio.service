@@ -1,0 +1,12 @@
+[Unit]
+Description=zenvision-studio — lid OLED daemon
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/zvstudio daemon --host 127.0.0.1 --port 8787
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target
