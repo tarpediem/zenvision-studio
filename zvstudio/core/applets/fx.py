@@ -127,8 +127,10 @@ class FireApplet(_Viz):
 
 
 class MatrixApplet(_Viz):
-    meta = AppletMeta(key="matrix", name="Matrix", description="Falling code rain",
-                      config_schema={"fps": {"type": "int", "default": 18, "label": "FPS"}})
+    meta = AppletMeta(key="matrix", name="Matrix", description="Falling katakana rain",
+                      config_schema={"fps": {"type": "int", "default": 24, "label": "FPS"},
+                                     "size": {"type": "int", "default": 9, "label": "Glyph size (smaller = denser)"},
+                                     "speed": {"type": "int", "default": 150, "label": "Speed %"}})
 
     GLYPH = ("アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホ"
              "マミムメモヤユヨラリルレロワヲンｱｲｳｴｵ0123456789")
@@ -136,28 +138,30 @@ class MatrixApplet(_Viz):
     def __init__(self, *a, **k) -> None:
         super().__init__(*a, **k)
         self._heads = None
-        self._cw = 13
-        self._ch = 14
 
     def render(self, ctx: Ctx):
         w, h = self.size
-        cols = max(1, w // self._cw)
+        a = self._audio
+        ch = max(6, int(self.config.get("size", 9)))
+        cw = max(4, int(ch * 0.78))
+        cols = max(1, w // cw)
+        tail = int(h / ch) + 3
         if self._heads is None or len(self._heads) != cols:
             self._heads = [random.uniform(-h, 0) for _ in range(cols)]
         img = F.canvas(w, h)
         d = ImageDraw.Draw(img)
-        a = self._audio
-        spd = self._ch * (0.6 + 1.6 * (a.level if a.ok else 0.4))
-        f = F.cjk_font(self._ch)
+        f = F.cjk_font(ch)
+        speedf = max(0.2, self.config.get("speed", 150) / 100.0)
+        spd = ch * (0.6 + 1.8 * (a.level if a.ok else 0.4)) * speedf
         for c in range(cols):
             self._heads[c] += spd / 30.0
-            if self._heads[c] - 6 * self._ch > h:
+            if self._heads[c] - tail * ch > h:
                 self._heads[c] = random.uniform(-h * 0.5, 0)
             hy = self._heads[c]
-            x = c * self._cw + 1
-            for kk in range(6):
-                y = hy - kk * self._ch
-                if -self._ch < y < h:
-                    g = 255 if kk == 0 else max(40, 190 - kk * 32)
+            x = c * cw
+            for kk in range(tail):
+                y = hy - kk * ch
+                if -ch < y < h:
+                    g = 255 if kk == 0 else max(30, int(220 - kk * 200 / tail))
                     d.text((x, y), random.choice(self.GLYPH), font=f, fill=g)
         return img
