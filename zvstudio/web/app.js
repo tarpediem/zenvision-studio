@@ -10,18 +10,17 @@ async function api(path, method = "GET", body) {
   return r.json();
 }
 
-// Live preview over WebSocket (falls back to polling the PNG).
+// Live preview by polling /preview.png (robust; no WebSocket dependency).
+// Double-buffered through a probe Image so the visible frame never flickers.
 function connectPreview() {
-  const proto = location.protocol === "https:" ? "wss" : "ws";
-  let ws;
-  try {
-    ws = new WebSocket(`${proto}://${location.host}/ws/preview`);
-  } catch (e) {
-    setInterval(() => { $("screen").src = "/preview.png?t=" + Date.now(); }, 200);
-    return;
-  }
-  ws.onmessage = (ev) => { $("screen").src = ev.data; };
-  ws.onclose = () => setTimeout(connectPreview, 1500);
+  const img = $("screen");
+  const tick = () => {
+    const probe = new Image();
+    probe.onload = () => { img.src = probe.src; };
+    probe.src = "/preview.png?t=" + Date.now();
+  };
+  setInterval(tick, 80); // ~12 fps
+  tick();
 }
 
 async function refreshStatus() {
