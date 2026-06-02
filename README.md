@@ -73,6 +73,19 @@ your phone over the LAN / Tailscale.
 
 ## Install
 
+### Arch Linux (AUR)
+
+```bash
+yay -S zenvision-studio          # latest tagged release
+# …or the rolling build that tracks main:
+yay -S zenvision-studio-git
+```
+
+The package installs the udev rule, a systemd **user** service and the tray
+launcher. The reverse-engineered driver is on the AUR too, as `zenvision-linux-git`.
+
+### From source
+
 ```bash
 python -m venv .venv && . .venv/bin/activate
 pip install -e ".[audio,video]"     # audio = numpy (spectrum/visualisers); video = imageio
